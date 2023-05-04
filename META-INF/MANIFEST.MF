@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Printarchive
+Bundle-SymbolicName: de.bxservice.printarchive;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: de.bxservice.printarchive
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.adempiere.base;bundle-version="9.0.0",
+ org.adempiere.plugin.utils;bundle-version="9.0.0",
+ org.adempiere.ui.zk
+Bundle-Activator: org.adempiere.plugin.utils.Incremental2PackActivator
+Bundle-ActivationPolicy: lazy
+Import-Package: org.adempiere.webui.adwindow.validator,
+ org.osgi.service.component.annotations;version="1.3.0"
+Service-Component: OSGI-INF/de.bxservice.printarchive.process.BXSProcessFactory.xml,
+ OSGI-INF/de.bxservice.printarchive.validator.PrintArchiveValidator.xml
