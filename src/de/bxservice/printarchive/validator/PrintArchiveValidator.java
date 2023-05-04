@@ -24,14 +24,14 @@
  **********************************************************************/
 package de.bxservice.printarchive.validator;
 
-import java.util.List;
-
 import org.adempiere.util.Callback;
+import org.adempiere.webui.adwindow.ADWindow;
+import org.adempiere.webui.adwindow.ADWindowContent;
+import org.adempiere.webui.adwindow.IADTabbox;
 import org.adempiere.webui.adwindow.validator.WindowValidator;
 import org.adempiere.webui.adwindow.validator.WindowValidatorEvent;
 import org.adempiere.webui.adwindow.validator.WindowValidatorEventType;
 import org.adempiere.webui.window.Dialog;
-import org.compiere.model.MArchive;
 import org.osgi.service.component.annotations.Component;
 
 import de.bxservice.printarchive.utils.PrintArchiveUtils;
@@ -54,15 +54,31 @@ public class PrintArchiveValidator implements WindowValidator {
 
 		PrintArchiveUtils printArchiveUtils = new PrintArchiveUtils(getAD_Table_ID(), getRecordID());
 		if (isBeforePrintEvent() && printArchiveUtils.isPrintFromArchive()) {
-			List<MArchive> archive = printArchiveUtils.getRecordArchivedDocuments();
 
-			if (!archive.isEmpty()) {
-				Dialog.ask(event.getWindow().getADWindowContent().getWindowNo(), "There's an archived version of this printout. Do you want to print a new version?", callback);
+			if (printArchiveUtils.hasArchivedDocuments()) {
+				Dialog.ask(event.getWindow().getADWindowContent().getWindowNo(), "BXS_ArchivedDocument", callback);
 			} else
 				callback.onCallback(Boolean.TRUE);
+			
+		} else if (isAfterPrintEvent() && printArchiveUtils.isArchivePrintout() &&
+				!printArchiveUtils.hasArchivedDocuments()) {
+			printArchiveUtils.archivePrintout(getTabProcessID());
 		} else {
 			callback.onCallback(Boolean.TRUE);
 		}
+	}
+	
+	private int getTabProcessID() {
+		ADWindow window = windowEvent.getWindow();
+		if (window != null) {
+			ADWindowContent windowContent = window.getADWindowContent();
+			if (windowContent != null) {
+				IADTabbox tabbox = windowContent.getADTab();
+				return tabbox.getSelectedGridTab().getAD_Process_ID();
+			}
+		}
+		
+		return 0;
 	}
 	
 	private boolean isValidEvent() {
@@ -71,11 +87,16 @@ public class PrintArchiveValidator implements WindowValidator {
 				windowEvent.getWindow().getADWindowContent().getADTab() != null && 
 				windowEvent.getWindow().getADWindowContent().getADTab().getSelectedGridTab() != null && 
 				windowEvent.getWindow().getComponent() != null && 
-				WindowValidatorEventType.BEFORE_PRINT.getName().equals(windowEvent.getName());
+				(WindowValidatorEventType.BEFORE_PRINT.getName().equals(windowEvent.getName()) ||
+						WindowValidatorEventType.AFTER_PRINT.getName().equals(windowEvent.getName()));
 	}
 	
 	private boolean isBeforePrintEvent() {
 		return WindowValidatorEventType.BEFORE_PRINT.getName().equals(windowEvent.getName());
+	}
+	
+	private boolean isAfterPrintEvent() {
+		return WindowValidatorEventType.AFTER_PRINT.getName().equals(windowEvent.getName());
 	}
 	
 	private int getRecordID() {
