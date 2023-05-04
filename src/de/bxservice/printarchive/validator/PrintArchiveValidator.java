@@ -46,31 +46,32 @@ public class PrintArchiveValidator implements WindowValidator {
 
 	@Override
 	public void onWindowEvent(WindowValidatorEvent event, Callback<Boolean> callback) {
-		if (!validateValidEvent(event))
-			return;
 		windowEvent = event;
+		if (!isValidEvent()) {
+			callback.onCallback(Boolean.TRUE);
+			return;
+		}
 
 		PrintArchiveUtils printArchiveUtils = new PrintArchiveUtils(getAD_Table_ID(), getRecordID());
-		
 		if (isBeforePrintEvent() && printArchiveUtils.isPrintFromArchive()) {
 			List<MArchive> archive = printArchiveUtils.getRecordArchivedDocuments();
 
 			if (!archive.isEmpty()) {
 				Dialog.ask(event.getWindow().getADWindowContent().getWindowNo(), "There's an archived version of this printout. Do you want to print a new version?", callback);
-			}
-			else
+			} else
 				callback.onCallback(Boolean.TRUE);
 		} else {
 			callback.onCallback(Boolean.TRUE);
 		}
 	}
 	
-	private boolean validateValidEvent(WindowValidatorEvent event) {
-		return event.getWindow() != null && 
-				event.getWindow().getADWindowContent() != null &&
-				event.getWindow().getADWindowContent().getADTab() != null && 
-				event.getWindow().getADWindowContent().getADTab().getSelectedGridTab() != null && 
-				event.getWindow().getComponent() != null;
+	private boolean isValidEvent() {
+		return windowEvent != null && windowEvent.getWindow() != null && 
+				windowEvent.getWindow().getADWindowContent() != null &&
+				windowEvent.getWindow().getADWindowContent().getADTab() != null && 
+				windowEvent.getWindow().getADWindowContent().getADTab().getSelectedGridTab() != null && 
+				windowEvent.getWindow().getComponent() != null && 
+				WindowValidatorEventType.BEFORE_PRINT.getName().equals(windowEvent.getName());
 	}
 	
 	private boolean isBeforePrintEvent() {
