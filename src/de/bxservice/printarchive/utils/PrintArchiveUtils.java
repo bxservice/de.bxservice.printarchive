@@ -55,6 +55,10 @@ public class PrintArchiveUtils {
 	private static final String DOC_TYPE_COLUMNNAME = "C_DocTypeTarget_ID";
 	private static final String ISPRINTFROMARCHIVE_COLUMNNAME = "BXS_IsPrintFromArchive";
 	private static final String ISAUTOARCHIVE_COLUMNNAME = "BXS_IsAutoArchiveFirst";
+	private static final String NOTIFICATIONTYPE_COLUMNNAME = "BXS_NotificationTypeArchive";
+	
+	private static final String NOTIFICATIONTYPE_WARNING = "W";
+	private static final String NOTIFICATIONTYPE_FORBID = "F";
 
 	private PO po;
 	private int AD_Table_ID;
@@ -76,6 +80,19 @@ public class PrintArchiveUtils {
 			return null;
 
 		return MDocType.get(po.get_ValueAsInt(DOC_TYPE_COLUMNNAME));
+	}
+	
+	public boolean showWarning() {
+		return NOTIFICATIONTYPE_WARNING.equals(getNotificationType());
+	}
+	
+	public boolean showError() {
+		return NOTIFICATIONTYPE_FORBID.equals(getNotificationType());
+	}
+	
+	private String getNotificationType() {
+		MDocType docType = getDocType();
+		return docType != null ? docType.get_ValueAsString(NOTIFICATIONTYPE_COLUMNNAME) : "";
 	}
 	
 	public boolean hasArchivedDocuments() {

@@ -56,7 +56,12 @@ public class PrintArchiveValidator implements WindowValidator {
 		if (isBeforePrintEvent() && printArchiveUtils.isPrintFromArchive()) {
 
 			if (printArchiveUtils.hasArchivedDocuments()) {
-				Dialog.ask(event.getWindow().getADWindowContent().getWindowNo(), "BXS_ArchivedDocument", callback);
+				if (printArchiveUtils.showError())
+					Dialog.error(event.getWindow().getADWindowContent().getWindowNo(), "BXS_ArchivedDocumentError");
+				else if (printArchiveUtils.showWarning())
+					Dialog.ask(event.getWindow().getADWindowContent().getWindowNo(), "BXS_ArchivedDocument", callback);
+				
+				callback.onCallback(Boolean.FALSE);
 			} else
 				callback.onCallback(Boolean.TRUE);
 			
