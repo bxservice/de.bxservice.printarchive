@@ -127,7 +127,7 @@ public class PrintArchiveUtils {
 		
 		MProcess reportProcess = MProcess.get(AD_Process_ID); 
 		ProcessInfo pi = getProcessInfo(reportProcess);
-		MPInstance instance = new MPInstance(po.getCtx(),AD_Process_ID, 0);
+		MPInstance instance = new MPInstance(po.getCtx(), AD_Process_ID, po.get_Table_ID(), po.get_ID(), po.get_UUID());
 		instance.saveEx();
 		ServerProcessCtl.process(pi, null);
 
@@ -154,7 +154,7 @@ public class PrintArchiveUtils {
 	private void setMProcessParameters(ProcessInfo pi, int AD_Process_ID) {
 		String language = getBPLanguage();
 		if (!Util.isEmpty(language)) {
-			MPInstance instance = new MPInstance(po.getCtx(), AD_Process_ID, 0);
+			MPInstance instance = new MPInstance(po.getCtx(), AD_Process_ID, po.get_Table_ID(), po.get_ID(), po.get_UUID());
 			instance.saveEx();
 			instance.createParameter(10, "AD_Language", language);
 			pi.setAD_PInstance_ID(instance.getAD_PInstance_ID());
